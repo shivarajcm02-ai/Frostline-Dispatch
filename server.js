@@ -58,6 +58,44 @@ app.use(express.json());
 // so Railway/Render/Fly's automatic health probes don't fail on login.
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
+// Intake endpoint for automation tools (e.g. Make.com watching an inbox).
+// Deliberately NOT behind the browser login — Make.com can't fill in a
+// username/password prompt — but it requires a shared secret instead, so
+// it's not just an open door to the internet. Set INTAKE_SECRET in your
+// environment; this route is disabled entirely if it's not set.
+const INTAKE_SECRET = process.env.INTAKE_SECRET;
+app.post('/api/jobs/intake', (req, res) => {
+  if (!INTAKE_SECRET) {
+    return res.status(503).json({ error: 'intake not configured — set INTAKE_SECRET' });
+  }
+  const provided = req.header('x-intake-secret') || req.query.secret;
+  if (provided !== INTAKE_SECRET) {
+    return res.status(401).json({ error: 'invalid or missing secret' });
+  }
+  const { name, phone, desc, notes } = req.body || {};
+  if (!name || typeof name !== 'string' || !name.trim()) {
+    return res.status(400).json({ error: 'name is required' });
+  }
+  const now = todayStr();
+  const job = {
+    id: uuidv4(),
+    name: name.trim(),
+    phone: (phone || '').trim(),
+    desc: (desc || '').trim(),
+    source: 'Website form',
+    status: 'new',
+    notes: (notes || '').trim(),
+    created: now,
+    lastContact: now,
+    updatedAt: new Date().toISOString(),
+  };
+  db.prepare(
+    `INSERT INTO jobs (id, name, phone, desc, source, status, notes, created, lastContact, updatedAt)
+     VALUES (@id, @name, @phone, @desc, @source, @status, @notes, @created, @lastContact, @updatedAt)`
+  ).run(job);
+  res.status(201).json(job);
+});
+
 if (!AUTH_DISABLED) {
   app.use(
     basicAuth({
