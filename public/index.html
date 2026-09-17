@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frostline Dispatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF2F4;
+    --panel:#FFFFFF;
+    --ink:#1B2B34;
+    --ink-soft:#54676F;
+    --steel:#3D5A6C;
+    --steel-dark:#2A414E;
+    --frost-line:#CBD7DC;
+    --amber:#D46A2E;
+    --amber-soft:#F3DCC9;
+    --green:#4C7A5E;
+    --green-soft:#DCE8DF;
+    --red:#B0432E;
+    --red-soft:#F3D9D2;
+    --yellow:#B8862B;
+    --yellow-soft:#F4E6C6;
+    --radius:6px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#141C21;
+      --panel:#1D2830;
+      --ink:#EAF1F4;
+      --ink-soft:#9FB0B8;
+      --steel:#7FA3B8;
+      --steel-dark:#A9C4D2;
+      --frost-line:#324450;
+      --amber-soft:#4A3220;
+      --green-soft:#233A2C;
+      --red-soft:#3E241E;
+      --yellow-soft:#3E301A;
+    }
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:1180px; margin:0 auto; padding:28px 20px 80px; }
+  header.top{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    flex-wrap:wrap; gap:16px; border-bottom:3px solid var(--steel);
+    padding-bottom:16px; margin-bottom:28px;
+  }
+  .brand h1{
+    font-family:'Oswald',sans-serif; font-weight:600; font-size:2rem;
+    letter-spacing:0.01em; margin:0 0 4px; color:var(--steel-dark);
+  }
+  .brand p{ margin:0; color:var(--ink-soft); font-size:0.95rem; }
+  .today-date{ font-family:'Oswald',sans-serif; font-size:1.05rem; color:var(--ink-soft); text-align:right; }
+  button{ font-family:'Inter',sans-serif; cursor:pointer; border:none; }
+  .btn-primary{
+    background:var(--steel); color:#fff; padding:10px 18px; border-radius:var(--radius);
+    font-weight:600; font-size:0.95rem;
+  }
+  .btn-primary:hover{background:var(--steel-dark);}
+  .btn-primary:disabled{opacity:0.6; cursor:not-allowed;}
+  .btn-ghost{
+    background:transparent; border:1.5px solid var(--frost-line); color:var(--ink);
+    padding:8px 14px; border-radius:var(--radius); font-size:0.88rem; font-weight:500;
+  }
+  .btn-ghost:hover{border-color:var(--steel);}
+  section.callpanel{
+    background:var(--panel); border:1px solid var(--frost-line); border-left:5px solid var(--amber);
+    border-radius:var(--radius); padding:20px 22px 8px; margin-bottom:32px;
+  }
+  .callpanel h2{ font-family:'Oswald',sans-serif; font-size:1.15rem; font-weight:500; margin:0 0 2px; color:var(--ink); }
+  .callpanel .sub{ color:var(--ink-soft); font-size:0.88rem; margin:0 0 16px; }
+  .call-row{ display:flex; align-items:center; gap:14px; padding:12px 0; border-top:1px solid var(--frost-line); }
+  .call-row:first-of-type{border-top:none;}
+  .call-flag{ width:8px; height:8px; border-radius:50%; flex:0 0 auto; }
+  .call-main{flex:1 1 auto; min-width:200px;}
+  .call-main .name{font-weight:600; font-size:0.98rem;}
+  .call-main .meta{font-size:0.83rem; color:var(--ink-soft); margin-top:2px;}
+  .call-status-tag{ font-size:0.75rem; font-weight:600; padding:3px 9px; border-radius:20px; white-space:nowrap; }
+  .call-actions{display:flex; gap:8px; flex:0 0 auto;}
+  .empty-state{ padding:24px 0 20px; color:var(--ink-soft); font-size:0.92rem; }
+  h2.board-title{ font-family:'Oswald',sans-serif; font-weight:500; font-size:1.15rem; margin:0 0 14px; }
+  .board{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
+  @media(max-width:900px){ .board{grid-template-columns:1fr 1fr;} }
+  @media(max-width:560px){ .board{grid-template-columns:1fr;} }
+  .column{ background:var(--panel); border:1px solid var(--frost-line); border-radius:var(--radius); min-height:140px; display:flex; flex-direction:column; }
+  .column-head{
+    padding:10px 12px; border-bottom:2px solid var(--frost-line); font-family:'Oswald',sans-serif;
+    font-size:0.82rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase;
+    color:var(--ink-soft); display:flex; justify-content:space-between;
+  }
+  .column-body{ padding:10px; display:flex; flex-direction:column; gap:8px; flex:1; }
+  .job-card{ border:1px solid var(--frost-line); border-radius:var(--radius); padding:10px 11px; background:var(--bg); cursor:pointer; }
+  .job-card:hover{border-color:var(--steel);}
+  .job-card .name{font-weight:600; font-size:0.9rem;}
+  .job-card .desc{font-size:0.8rem; color:var(--ink-soft); margin-top:3px; line-height:1.3;}
+  .job-card .since{font-size:0.74rem; margin-top:6px; font-weight:600;}
+  .col-empty{ font-size:0.78rem; color:var(--ink-soft); padding:8px 2px; font-style:italic; }
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,28,33,0.5); display:none;
+    align-items:flex-start; justify-content:center; padding:40px 16px; z-index:50; overflow-y:auto;
+  }
+  .overlay.show{display:flex;}
+  .modal{ background:var(--panel); border-radius:8px; max-width:480px; width:100%; padding:24px; border:1px solid var(--frost-line); }
+  .modal h3{ font-family:'Oswald',sans-serif; margin:0 0 16px; font-size:1.2rem; }
+  .field{margin-bottom:14px;}
+  .field label{ display:block; font-size:0.82rem; font-weight:600; margin-bottom:5px; color:var(--ink-soft); }
+  .field input, .field select, .field textarea{
+    width:100%; padding:9px 10px; border:1.5px solid var(--frost-line); border-radius:5px;
+    font-family:'Inter',sans-serif; font-size:0.92rem; background:var(--panel); color:var(--ink);
+  }
+  .field textarea{resize:vertical; min-height:56px;}
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:2px solid var(--steel); outline-offset:1px; }
+  .modal-actions{ display:flex; justify-content:space-between; align-items:center; margin-top:18px; gap:10px; flex-wrap:wrap; }
+  .modal-actions .left{display:flex; gap:8px; flex-wrap:wrap;}
+  .status-row{display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;}
+  .status-chip{ font-size:0.78rem; padding:6px 10px; border-radius:20px; border:1.5px solid var(--frost-line); background:var(--panel); color:var(--ink); font-weight:500; }
+  .status-chip.active{ background:var(--steel); border-color:var(--steel); color:#fff; }
+  .link-danger{ color:var(--red); background:none; font-size:0.82rem; font-weight:600; text-decoration:underline; }
+  footer.note{ text-align:center; color:var(--ink-soft); font-size:0.8rem; margin-top:40px; }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Frostline Dispatch</h1>
+      <p>One screen: who to call, and where every job stands.</p>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <div style="text-align:right;">
+        <div class="today-date" id="todayDate"></div>
+        <div id="syncBadge" style="font-size:0.76rem; font-weight:600; color:var(--ink-soft); margin-top:2px;">Connecting…</div>
+      </div>
+      <button class="btn-primary" id="addLeadBtn">+ New lead</button>
+    </div>
+  </header>
+
+  <section class="callpanel">
+    <h2>Who to call today</h2>
+    <p class="sub">Sorted so the ones going cold float to the top.</p>
+    <div id="callList"></div>
+  </section>
+
+  <h2 class="board-title">Job board</h2>
+  <div class="board" id="board"></div>
+
+  <footer class="note">Running on your own server. Everyone with the link and login sees the same board, refreshed automatically.</footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">New lead</h3>
+    <form id="jobForm">
+      <div class="field">
+        <label for="f_name">Customer / business name</label>
+        <input type="text" id="f_name" required placeholder="e.g. Riverside Diner">
+      </div>
+      <div class="field">
+        <label for="f_phone">Phone</label>
+        <input type="text" id="f_phone" placeholder="(555) 123-4567">
+      </div>
+      <div class="field">
+        <label for="f_desc">Job</label>
+        <textarea id="f_desc" placeholder="e.g. Walk-in freezer not holding temp"></textarea>
+      </div>
+      <div class="field">
+        <label for="f_source">How it came in</label>
+        <select id="f_source">
+          <option>Phone call</option>
+          <option>Website form</option>
+          <option>Text</option>
+          <option>Referral / repeat customer</option>
+        </select>
+      </div>
+      <div class="field" id="statusField">
+        <label>Status</label>
+        <div class="status-row" id="statusRow"></div>
+      </div>
+      <div class="field">
+        <label for="f_notes">Notes</label>
+        <textarea id="f_notes" placeholder="Anything worth remembering"></textarea>
+      </div>
+      <div class="modal-actions">
+        <div class="left">
+          <button type="button" class="btn-ghost" id="logCallBtn" style="display:none;">Log a call today</button>
+          <button type="button" class="link-danger" id="deleteBtn" style="display:none;">Delete</button>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-ghost" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn-primary" id="saveBtn">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  const STATUSES = [
+    {key:'new', label:'New lead'},
+    {key:'quoted', label:'Quote sent'},
+    {key:'awaiting_yes', label:'Awaiting yes'},
+    {key:'scheduled', label:'Scheduled'},
+    {key:'done', label:'Done'}
+  ];
+  const POLL_MS = 5000; // pick up other people's changes every 5s
+
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function daysSince(dateStr){
+    const then = new Date(dateStr + 'T00:00:00');
+    const now = new Date(todayStr() + 'T00:00:00');
+    return Math.round((now - then) / 86400000);
+  }
+  function fmtDate(d){
+    return new Date(d + 'T00:00:00').toLocaleDateString(undefined,{month:'short', day:'numeric'});
+  }
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str == null ? '' : str;
+    return d.innerHTML;
+  }
+
+  let jobs = [];
+  let editingId = null;
+  let currentEditStatus = 'new';
+  let pollTimer = null;
+
+  const board = document.getElementById('board');
+  const callList = document.getElementById('callList');
+  const overlay = document.getElementById('overlay');
+  const jobForm = document.getElementById('jobForm');
+  const statusRow = document.getElementById('statusRow');
+  const modalTitle = document.getElementById('modalTitle');
+  const logCallBtn = document.getElementById('logCallBtn');
+  const deleteBtn = document.getElementById('deleteBtn');
+  const syncBadge = document.getElementById('syncBadge');
+
+  document.getElementById('todayDate').textContent = new Date().toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
+
+  // --- API layer --------------------------------------------------
+  async function apiRequest(path, options){
+    const res = await fetch('/api' + path, {
+      headers: {'Content-Type':'application/json'},
+      ...options
+    });
+    if(res.status === 401){
+      setSync('error', 'Login required — refresh and sign in');
+      throw new Error('unauthorized');
+    }
+    if(!res.ok){
+      const body = await res.json().catch(()=>({}));
+      throw new Error(body.error || ('request failed: ' + res.status));
+    }
+    if(res.status === 204) return null;
+    return res.json();
+  }
+
+  async function fetchJobs(){
+    const data = await apiRequest('/jobs');
+    jobs = data;
+    setSync('live', 'Synced');
+    render();
+  }
+
+  async function addJob(data){
+    await apiRequest('/jobs', {method:'POST', body: JSON.stringify(data)});
+    await fetchJobs();
+  }
+  async function updateJob(id, changes){
+    await apiRequest('/jobs/' + id, {method:'PATCH', body: JSON.stringify(changes)});
+    await fetchJobs();
+  }
+  async function deleteJob(id){
+    await apiRequest('/jobs/' + id, {method:'DELETE'});
+    await fetchJobs();
+  }
+  async function logCall(id){
+    await apiRequest('/jobs/' + id + '/log-call', {method:'POST'});
+    await fetchJobs();
+  }
+
+  function setSync(state, label){
+    syncBadge.textContent = label;
+    syncBadge.style.color = state === 'live' ? 'var(--green)'
+      : state === 'error' ? 'var(--red)'
+      : 'var(--ink-soft)';
+  }
+
+  function startPolling(){
+    if(pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(()=>{
+      // don't yank the board out from under someone mid-edit
+      if(overlay.classList.contains('show')) return;
+      fetchJobs().catch(()=> setSync('error', 'Connection interrupted'));
+    }, POLL_MS);
+  }
+
+  // --- Rendering (unchanged UI logic) -------------------------------
+  function urgency(job){
+    if(job.status === 'done') return {level:'done', color:'var(--green)', bg:'var(--green-soft)', label:'Done'};
+    const d = daysSince(job.lastContact);
+    if(d >= 2) return {level:'urgent', color:'var(--red)', bg:'var(--red-soft)', label: d + ' days since contact'};
+    if(d === 1) return {level:'due', color:'var(--yellow)', bg:'var(--yellow-soft)', label:'1 day since contact'};
+    return {level:'ok', color:'var(--green)', bg:'var(--green-soft)', label:'Touched today'};
+  }
+  function statusLabel(key){ return (STATUSES.find(s=>s.key===key) || {}).label || key; }
+
+  function render(){ renderCallList(); renderBoard(); }
+
+  function renderCallList(){
+    const open = jobs.filter(j => j.status !== 'done');
+    open.sort((a,b) => daysSince(b.lastContact) - daysSince(a.lastContact));
+    callList.innerHTML = '';
+    if(open.length === 0){
+      callList.innerHTML = '<div class="empty-state">Nothing open right now. New leads will show up here.</div>';
+      return;
+    }
+    open.forEach(job => {
+      const u = urgency(job);
+      const row = document.createElement('div');
+      row.className = 'call-row';
+      row.innerHTML = `
+        <div class="call-flag" style="background:${u.color}"></div>
+        <div class="call-main">
+          <div class="name">${escapeHtml(job.name)}</div>
+          <div class="meta">${escapeHtml(job.desc || 'No job details yet')} &middot; ${escapeHtml(job.phone || 'no phone on file')}</div>
+        </div>
+        <span class="call-status-tag" style="background:${u.bg}; color:${u.color}">${u.label}</span>
+        <span class="call-status-tag" style="background:var(--bg); color:var(--ink-soft); border:1px solid var(--frost-line)">${statusLabel(job.status)}</span>
+        <div class="call-actions">
+          <button class="btn-ghost" data-action="call" data-id="${job.id}">Logged a call</button>
+          <button class="btn-ghost" data-action="open" data-id="${job.id}">Open</button>
+        </div>
+      `;
+      callList.appendChild(row);
+    });
+    callList.querySelectorAll('[data-action="call"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ logCall(btn.dataset.id).catch(console.error); });
+    });
+    callList.querySelectorAll('[data-action="open"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ openModal(btn.dataset.id); });
+    });
+  }
+
+  function renderBoard(){
+    board.innerHTML = '';
+    STATUSES.forEach(s => {
+      const col = document.createElement('div');
+      col.className = 'column';
+      const colJobs = jobs.filter(j => j.status === s.key);
+      col.innerHTML = `
+        <div class="column-head"><span>${s.label}</span><span>${colJobs.length}</span></div>
+        <div class="column-body" id="col_${s.key}"></div>
+      `;
+      board.appendChild(col);
+      const body = col.querySelector('.column-body');
+      if(colJobs.length === 0){
+        body.innerHTML = '<div class="col-empty">No jobs here</div>';
+        return;
+      }
+      colJobs.sort((a,b)=> daysSince(b.lastContact) - daysSince(a.lastContact));
+      colJobs.forEach(job => {
+        const u = urgency(job);
+        const card = document.createElement('div');
+        card.className = 'job-card';
+        card.innerHTML = `
+          <div class="name">${escapeHtml(job.name)}</div>
+          <div class="desc">${escapeHtml(job.desc || '')}</div>
+          <div class="since" style="color:${u.color}">${s.key==='done' ? 'Completed ' + fmtDate(job.lastContact) : u.label}</div>
+        `;
+        card.addEventListener('click', ()=> openModal(job.id));
+        body.appendChild(card);
+      });
+    });
+  }
+
+  function buildStatusChips(activeKey){
+    statusRow.innerHTML = '';
+    STATUSES.forEach(s => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'status-chip' + (s.key === activeKey ? ' active' : '');
+      chip.textContent = s.label;
+      chip.addEventListener('click', ()=>{ currentEditStatus = s.key; buildStatusChips(s.key); });
+      statusRow.appendChild(chip);
+    });
+  }
+
+  function openModal(id){
+    editingId = id;
+    const job = jobs.find(j=>j.id===id);
+    modalTitle.textContent = job.name;
+    document.getElementById('f_name').value = job.name;
+    document.getElementById('f_phone').value = job.phone || '';
+    document.getElementById('f_desc').value = job.desc || '';
+    document.getElementById('f_source').value = job.source || 'Phone call';
+    document.getElementById('f_notes').value = job.notes || '';
+    currentEditStatus = job.status;
+    buildStatusChips(job.status);
+    logCallBtn.style.display = 'inline-block';
+    deleteBtn.style.display = 'inline-block';
+    overlay.classList.add('show');
+  }
+
+  function openNewModal(){
+    editingId = null;
+    modalTitle.textContent = 'New lead';
+    jobForm.reset();
+    currentEditStatus = 'new';
+    buildStatusChips('new');
+    logCallBtn.style.display = 'none';
+    deleteBtn.style.display = 'none';
+    overlay.classList.add('show');
+    document.getElementById('f_name').focus();
+  }
+
+  function closeModal(){
+    overlay.classList.remove('show');
+    editingId = null;
+  }
+
+  document.getElementById('addLeadBtn').addEventListener('click', openNewModal);
+  document.getElementById('cancelBtn').addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
+
+  logCallBtn.addEventListener('click', async ()=>{
+    if(editingId){
+      const id = editingId;
+      closeModal();
+      try{ await logCall(id); }catch(err){ console.error(err); }
+    }
+  });
+
+  deleteBtn.addEventListener('click', async ()=>{
+    if(editingId && confirm('Delete this job? This cannot be undone.')){
+      const id = editingId;
+      closeModal();
+      try{ await deleteJob(id); }catch(err){ console.error(err); }
+    }
+  });
+
+  jobForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const name = document.getElementById('f_name').value.trim();
+    if(!name) return;
+    const data = {
+      name,
+      phone: document.getElementById('f_phone').value.trim(),
+      desc: document.getElementById('f_desc').value.trim(),
+      source: document.getElementById('f_source').value,
+      notes: document.getElementById('f_notes').value.trim(),
+      status: currentEditStatus
+    };
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+    try{
+      if(editingId){ await updateJob(editingId, data); }
+      else { await addJob(data); }
+      closeModal();
+    }catch(err){
+      console.error('save failed', err);
+      alert('Could not save right now. Check your connection and try again.');
+    }finally{
+      saveBtn.disabled = false;
+    }
+  });
+
+  fetchJobs().catch(err=>{
+    console.error(err);
+    setSync('error', 'Could not reach the server');
+  });
+  startPolling();
+})();
+</script>
+</body>
+</html>
