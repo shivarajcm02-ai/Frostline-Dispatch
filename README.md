@@ -2,7 +2,7 @@
 
 A one-screen job board for a small field-service business: who to call
 today, and where every job stands. Runs on your own server — no
-third-party account required beyond wherever you choose to host it.
+third-party account required beyond wherever you choose to host it..
 
 **Stack:** Node.js + Express + SQLite (a single file on disk, no
 separate database server to manage). Frontend is plain HTML/CSS/JS
